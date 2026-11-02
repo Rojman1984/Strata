@@ -130,6 +130,10 @@ template <typename T> inline hipError_t strata_host_alloc(T** p, size_t bytes, u
 #define cudaHostGetDevicePointer hipHostGetDevicePointer
 #define cudaStreamCreate hipStreamCreate
 #define cudaStreamCreateWithFlags hipStreamCreateWithFlags
+// mi25-gfx900 patch 1: src/core/dflash2.cpp (CUDA branch, taken by this compat build) calls these two; without them
+// the gfx906/gfx900 compat build does not compile.  Same signatures in HIP.
+#define cudaStreamCreateWithPriority hipStreamCreateWithPriority
+#define cudaDeviceGetStreamPriorityRange hipDeviceGetStreamPriorityRange
 #define cudaStreamDestroy hipStreamDestroy
 #define cudaStreamSynchronize hipStreamSynchronize
 #define cudaStreamQuery hipStreamQuery
