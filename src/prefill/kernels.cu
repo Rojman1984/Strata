@@ -1794,9 +1794,16 @@ __global__ void __launch_bounds__(S) gdn_out_norm_loop_kernel(const float* __res
         } else {
             // STRATA_GDN_NOY=1: nothing reads the FP32 result (403 MB per 16K chunk).  The FP16 value is what the
             // compiler makes of hf(v) next to the store: v_fma_mixlo_f16, the product rounded to FP16 once
+#if defined(__gfx900__)
+            // mi25-gfx900 patch 3: Vega 10 has no v_fma_mix* (gfx906+).  The product is rounded to FP32 and then to FP16
+            // (two roundings) instead of once, so y16 can differ in the last FP16 bit from the gfx906 path.  It equals the
+            // WY branch above bit for bit (y16 = hf(bp * sg)), so STRATA_GDN_NOY=0 vs =1 must give identical y16 on gfx900.
+            y16[o16] = hf(bp * sg);
+#else
             unsigned r;
             asm("v_fma_mixlo_f16 %0, %1, %2, 0" : "=v"(r) : "v"(sg), "v"(bp));
             y16[o16] = (uint16_t) r;
+#endif
         }
     }
 }
