@@ -36,11 +36,13 @@ ninja -C build strata
 
 ## The three commits
 
+These are local fixes. Each has a corresponding upstream fix, still open as of 2026-11-04; those take different approaches and were not the code validated here.
+
 | Commit | Change | Scope |
 |---|---|---|
-| `ff07c87` | `hip_compat`: map `cudaStreamCreateWithPriority` and `cudaDeviceGetStreamPriorityRange` to their HIP equivalents | A gap in the compat layer. Likely affects every `STRATA_HIP_GFX906` build; reported upstream. |
-| `610a6e3` | `iq_kernels`: route two `__shared__ alignas(16) int4` tiles through the file's existing #778 macro form | clang 18 (ROCm 6.3) rejects the attribute placement; the CUDA build is unchanged |
-| `8576e3f` | Prefill GDN out-norm (`STRATA_GDN_NOY=1` path): a portable FP16 store on gfx900 instead of `v_fma_mixlo_f16`, which gfx900 lacks | gfx900 only. Rounds FP32→FP16 twice (up to 1 FP16 ulp vs gfx906); upstream's `gfx906_gdn_rec_head` test is bitwise equal with and without the opt-in path |
+| `ff07c87` | `hip_compat`: map `cudaStreamCreateWithPriority` and `cudaDeviceGetStreamPriorityRange` to their HIP equivalents | A gap in the compat layer. Likely affects every `STRATA_HIP_GFX906` build. Upstream fix: [#4766](https://github.com/Niko1221/Strata/pull/4766), which instead keeps these builds on `dflash2.cpp`'s HIP path (preferred). |
+| `610a6e3` | `iq_kernels`: route two `__shared__ alignas(16) int4` tiles through the file's existing #778 macro form | clang 18 (ROCm 6.3) rejects the attribute placement; the CUDA build is unchanged. Upstream fix: [#4600](https://github.com/Niko1221/Strata/pull/4600) |
+| `8576e3f` | Prefill GDN out-norm (`STRATA_GDN_NOY=1` path): a portable FP16 store on gfx900 instead of `v_fma_mixlo_f16`, which gfx900 lacks | gfx900 only. Rounds FP32→FP16 twice (up to 1 FP16 ulp vs gfx906); upstream's `gfx906_gdn_rec_head` test is bitwise equal with and without the opt-in path. Upstream fix: [#4983](https://github.com/Niko1221/Strata/pull/4983) |
 
 ## Gates
 
